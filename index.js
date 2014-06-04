@@ -1,6 +1,6 @@
 var request = require('request');
-var open = require('open');
 var fs = require('fs-extra');
+var semver = require('semver');
 
 var CLIENT_ID = '424707252803-6vr5g4cgs2h11qmmt08atrjdc469n1hk.apps.googleusercontent.com';
 var CLIENT_SECRET = 'e7-rOnu_YFvzrjsnerjwtDpx';
@@ -63,8 +63,8 @@ function getAccessToken(code, interval) {
 
   function makeRequest() {
     request.post(options, function(error, response, body) {
+      console.log(body);
       var data = JSON.parse(body);
-      console.log(data);
       if (data.error) {
         setTimeout(makeRequest, interval);
       } else {
@@ -72,7 +72,7 @@ function getAccessToken(code, interval) {
           access_token: data.access_token,
           refresh_token: data.refresh_token
         });
-        getData(data.access_token);
+        getData(data.access_token, data.refresh_token);
       }
     })
   }
@@ -118,7 +118,7 @@ function getData(access_token, refresh_token) {
     qs: {
       'ids': 'ga:42124519',
       'metrics': 'ga:sessions',
-      'dimensions': 'ga:browser',
+      'dimensions': 'ga:browser,ga:browserVersion',
       'start-date': '30daysAgo',
       'end-date': 'yesterday',
       'sort': '-ga:sessions',
@@ -130,7 +130,8 @@ function getData(access_token, refresh_token) {
     var results = JSON.parse(body);
 
     if (response.statusCode == 200) {
-      console.log(JSON.stringify(results, null, 2));
+      // console.log(JSON.stringify(results, null, 2));
+      displayResults(results);
     }
     else if (response.statusCode == 401) {
       refreshAccessToken(refresh_token);
@@ -140,4 +141,44 @@ function getData(access_token, refresh_token) {
     }
 
   });
+}
+
+function displayResults(results) {
+  var totalSessions = +results.totalsForAllResults['ga:sessions'];
+  var browsers = {};
+  var rows = results.rows || [];
+
+  rows.forEach(function(row) {
+    var browser = row[0];
+    var versionData = parseVersion(row[1]);
+    var version = versionData && versionData[0];
+    var majorVersion = versionData && versionData[1];
+    var minorVersion = versionData && versionData[2];
+    var sessions = +row[2];
+
+    // Initialize a browser object if it doesn't exist.
+    browsers[browser] = browsers[browser] || {
+      sessions: sessions,
+      versions: {}
+    }
+
+    var versions = browsers[browser].versions;
+    if (versions[version]) {
+      versions[version].sessions += sessions;
+    }
+    else {
+      versions[version] = {
+        sessions: sessions
+      }
+    }
+
+  })
+
+  fs.writeJSONSync('output.json', browsers);
+}
+
+function parseVersion(version) {
+  var parser = /^(\d+)\.?(\d+)?/;
+  var parsed = parser.exec(version);
+  return parsed || null;
 }

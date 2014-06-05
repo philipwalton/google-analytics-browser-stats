@@ -116,7 +116,7 @@ function getData(access_token, refresh_token) {
   var options = {
     url: 'https://www.googleapis.com/analytics/v3/data/ga',
     qs: {
-      'ids': 'ga:42124519',
+      'ids': 'ga:5864478', // 'ga:42124519',
       'metrics': 'ga:sessions',
       'dimensions': 'ga:browser,ga:browserVersion',
       'start-date': '30daysAgo',
@@ -157,9 +157,14 @@ function displayResults(results) {
     var sessions = +row[2];
 
     // Initialize a browser object if it doesn't exist.
-    browsers[browser] = browsers[browser] || {
-      sessions: sessions,
-      versions: {}
+    if (browsers[browser]) {
+      browsers[browser].sessions += sessions;
+    }
+    else {
+      browsers[browser] = browsers[browser] || {
+        sessions: sessions,
+        versions: {}
+      }
     }
 
     var versions = browsers[browser].versions;
@@ -171,8 +176,25 @@ function displayResults(results) {
         sessions: sessions
       }
     }
-
   })
+
+  Object.keys(browsers).forEach(function(key) {
+    var browser = browsers[key];
+    browser.percentOfTotal = browser.sessions * 100 / totalSessions;
+
+    Object.keys(browser.versions).forEach(function(key) {
+      var version = browser.versions[key];
+      version.percentOfTotal = version.sessions * 100 / totalSessions;
+      version.percentOfBrowser = version.sessions * 100 / browser.sessions;
+    })
+
+  });
+
+
+  var output = {
+    sessions: totalSessions,
+    browsers: browsers
+  }
 
   fs.writeJSONSync('output.json', browsers);
 }

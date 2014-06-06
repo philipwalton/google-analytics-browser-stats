@@ -116,12 +116,11 @@ function getData(access_token, refresh_token) {
   var options = {
     url: 'https://www.googleapis.com/analytics/v3/data/ga',
     qs: {
-      'ids': 'ga:5864478', // 'ga:42124519',
+      'ids': 'ga:42124519', // 'ga:5864478',
       'metrics': 'ga:sessions',
       'dimensions': 'ga:browser,ga:browserVersion',
       'start-date': '30daysAgo',
       'end-date': 'yesterday',
-      'sort': '-ga:sessions',
       'access_token': access_token
     }
   }
@@ -162,6 +161,7 @@ function displayResults(results) {
     }
     else {
       browsers[browser] = browsers[browser] || {
+        name: browser,
         sessions: sessions,
         versions: {}
       }
@@ -173,6 +173,7 @@ function displayResults(results) {
     }
     else {
       versions[version] = {
+        version: version,
         sessions: sessions
       }
     }
@@ -190,13 +191,30 @@ function displayResults(results) {
 
   });
 
-
   var output = {
     sessions: totalSessions,
-    browsers: browsers
+    browsers: sortResults(browsers)
   }
 
-  fs.writeJSONSync('output.json', browsers);
+  fs.writeJSONSync('output.json', output);
+}
+
+function sortResults(browsers) {
+  var results = [];
+  Object.keys(browsers).forEach(function(key) {
+    var browser = browsers[key];
+    var versions = [];
+    Object.keys(browser.versions).forEach(function(key) {
+      versions.push(browser.versions[key]);
+    })
+    browser.versions = versions.sort(sortDescendingBySessions);
+    results.push(browser);
+  });
+  return results.sort(sortDescendingBySessions)
+}
+
+function sortDescendingBySessions(a, b) {
+  return b.sessions - a.sessions;
 }
 
 function parseVersion(version) {

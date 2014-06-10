@@ -116,7 +116,7 @@ function getData(access_token, refresh_token) {
   var options = {
     url: 'https://www.googleapis.com/analytics/v3/data/ga',
     qs: {
-      'ids': 'ga:42124519', // 'ga:5864478',
+      'ids': 'ga:5864478', // 'ga:42124519', //
       'metrics': 'ga:sessions',
       'dimensions': 'ga:browser,ga:browserVersion',
       'start-date': '30daysAgo',
@@ -149,10 +149,7 @@ function displayResults(results) {
 
   rows.forEach(function(row) {
     var browser = row[0];
-    var versionData = parseVersion(row[1]);
-    var version = versionData && versionData[0];
-    var majorVersion = versionData && versionData[1];
-    var minorVersion = versionData && versionData[2];
+    var version = parseVersion(row[1], browser);
     var sessions = +row[2];
 
     // Initialize a browser object if it doesn't exist.
@@ -217,8 +214,23 @@ function sortDescendingBySessions(a, b) {
   return b.sessions - a.sessions;
 }
 
-function parseVersion(version) {
+function parseVersion(version, browser) {
   var parser = /^(\d+)\.?(\d+)?/;
-  var parsed = parser.exec(version);
-  return parsed || null;
+  var matches = parser.exec(version);
+  if (!matches) {
+    // For testing...
+    console.log("Could not parse: '" + browser + "', version: '" + version + "'");
+    return null;
+  }
+  var version = matches[0];
+  var majorVersion = +matches[1];
+  var minorVersion = +matches[2];
+
+  if (browser == 'Safari' && majorVersion > 10) {
+    // Also for testing...
+    console.log('Webkit version detected: ' + version);
+    version = null;
+  }
+
+  return version;
 }

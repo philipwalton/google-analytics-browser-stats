@@ -1,10 +1,34 @@
 {
-  "name": "oauth2",
+  "name": "ga-browser-stats",
   "version": "0.0.0",
-  "private": true,
+  "description": "A command line utility to easily share your browser usage statistics with third party tools.",
+  "main": "bin/ga-browser-stats",
+  "bin": "bin/ga-browser-stats",
   "dependencies": {
+    "commander": "^2.2.0",
     "fs-extra": "^0.9.1",
-    "request": "^2.36.0",
-    "semver": "^2.3.0"
-  }
+    "request": "^2.36.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/philipwalton/google-analytics-browser-stats.git"
+  },
+  "keywords": [
+    "google",
+    "analytics",
+    "browser",
+    "statistics",
+    "build",
+    "tool"
+  ],
+  "author": "Philip Walton <philip@philipwalton.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/philipwalton/google-analytics-browser-stats/issues"
+  },
+  "homepage": "https://github.com/philipwalton/google-analytics-browser-stats"
 }

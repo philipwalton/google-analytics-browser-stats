@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "description": "A command line utility to easily share your browser usage statistics with third party tools.",
   "main": "bin/ga-browser-stats",
-  "bin": {
-    "browser-stats": "bin/ga-browser-stats"
-  },
+  "bin": "bin/ga-browser-stats",
   "dependencies": {
+    "colors": "^0.6.2",
     "commander": "^2.2.0",
     "fs-extra": "^0.9.1",
     "native-promise-only": "^0.4.1-e",

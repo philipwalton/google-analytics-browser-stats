@@ -1,0 +1,7 @@
+{
+  "boss": true,
+  "eqnull": true,
+  "expr": true,
+  "laxbreak": true,
+  "quotmark": "single"
+}

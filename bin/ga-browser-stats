@@ -23,7 +23,7 @@ function getPackageInfo() {
   return readJSON(pkgFile)
     .bind(this)
     .then(function(data) {
-      this.pkg = data
+      this.pkg = data;
     });
 }
 
@@ -37,25 +37,25 @@ function runCLI() {
     .option('-d, --days [count]',
       'the number of days to include in the query [30]', '30')
     .option('-c, --config-file [file]',
-      'a JSON file with config data [ga-config.json]',
+      'a file with config data [ga-config.json]',
       'ga-config.json')
     .option('-o, --output-file [file]',
-      'the file to output results to [ga-browser-stats.json]',
+      'the file to output results [ga-browser-stats.json]',
       'ga-browser-stats.json')
     .option('-t, --token-file [file]',
       'the file to store the oauth2 access and refresh tokens [.ga-tokens]',
       '.ga-tokens')
-    .option('-t, --threshold [percentage]',
+    .option('--threshold [percentage]',
       'exclude results whose percentage of the total is below this amount [0]',
       '0')
-    .option('-v, --verbose',
+    .option('--verbose',
       'print more detailed progress information to the console');
 
   program.parse(process.argv);
 
   this.config = {};
   program.options.forEach(function(option) {
-    var key = camelCase(option.long.slice(2))
+    var key = camelCase(option.long.slice(2));
     if (key == 'version') return;
     var value = program[key];
     if (value != null) this.config[key] = value;

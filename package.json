@@ -11,7 +11,9 @@
     "fs-extra": "^0.9.1",
     "request": "^2.36.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jshint": "^2.5.1"
+  },
   "scripts": {
     "test": "test"
   },

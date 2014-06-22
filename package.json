@@ -1,9 +1,11 @@
 {
-  "name": "ga-browser-stats",
+  "name": "google-analytics-browser-stats",
   "version": "0.0.0",
   "description": "A command line utility to easily share your browser usage statistics with third party tools.",
   "main": "bin/browser-stats",
-  "bin": "bin/browser-stats",
+  "bin": {
+    "browser-stats": "bin/browser-stats"
+    },
   "dependencies": {
     "bluebird": "^2.1.2",
     "colors": "^0.6.2",

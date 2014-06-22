@@ -2,17 +2,20 @@
   "name": "ga-browser-stats",
   "version": "0.0.0",
   "description": "A command line utility to easily share your browser usage statistics with third party tools.",
-  "main": "bin/ga-browser-stats",
-  "bin": "bin/ga-browser-stats",
+  "main": "bin/browser-stats",
+  "bin": "bin/browser-stats",
   "dependencies": {
     "bluebird": "^2.1.2",
     "colors": "^0.6.2",
     "commander": "^2.2.0",
     "fs-extra": "^0.9.1",
+    "lodash-node": "^2.4.1",
     "request": "^2.36.0"
   },
   "devDependencies": {
-    "jshint": "^2.5.1"
+    "jshint": "^2.5.1",
+    "mocha": "^1.20.1",
+    "sinon": "^1.10.2"
   },
   "scripts": {
     "test": "test"

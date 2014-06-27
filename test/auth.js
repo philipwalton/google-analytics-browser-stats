@@ -9,13 +9,6 @@ var auth = require('../lib/auth');
 
 var outputFile = Promise.promisify(fs.outputFile);
 
-var CLIENT_ID = '424707252803-6vr5g4cgs2h11qmmt08atrjdc469n1hk' +
-    '.apps.googleusercontent.com';
-var CLIENT_SECRET = 'e7-rOnu_YFvzrjsnerjwtDpx';
-var SCOPE = 'https://www.googleapis.com/auth/analytics.readonly';
-var AUTH_URL = 'https://accounts.google.com/o/oauth2/token';
-
-
 var responses = {
   refreshSuccess: Promise.resolve(JSON.stringify({
     access_token: 'some-refreshed-access-token',
@@ -44,17 +37,17 @@ var responses = {
 };
 
 var fixtures = {
-  'test/fixtures/valid-tokens.json': JSON.stringify({
+  'tmp/valid-tokens.json': JSON.stringify({
     access_token: 'some-valid-access-token',
     refresh_token: 'some-unneeded-refresh-token',
     expires: Date.now() + (2 * 60 * 60 * 1000) // Two hours from nom.
   }),
-  'test/fixtures/expired-tokens.json': JSON.stringify({
+  'tmp/expired-tokens.json': JSON.stringify({
     access_token: 'some-expired-access-token',
     refresh_token: 'some-needed-refresh-token',
     expires: Date.now()
   }),
-  'test/fixtures/unparsable-tokens.json': 'Unparsable JSON...'
+  'tmp/unparsable-tokens.json': 'Unparsable JSON...'
 };
 
 
@@ -70,34 +63,34 @@ describe('auth', function() {
   });
 
   after(function(done) {
-    fs.remove('test/fixtures', done);
+    fs.remove('tmp', done);
   });
 
   describe('.getAccessToken', function() {
 
     it('gets the access token from the token file if it is present and ' +
-        'not expired', function(done) {
+        'not expired.', function(done) {
 
       var context =  {
         config: {
           ids: 'ga:12345',
-          tokenFile: 'test/fixtures/valid-tokens.json'
+          tokenFile: 'tmp/valid-tokens.json'
         }
       };
 
       auth.getAccessToken.call(context).then(function() {
         assert.equal(this.tokenData.access_token, 'some-valid-access-token');
         done();
-      })
+      });
     });
 
 
-    it('refreshes the access token when it has expired', function(done) {
+    it('refreshes the access token when it has expired.', function(done) {
 
       var context =  {
         config: {
           ids: 'ga:12345',
-          tokenFile: 'test/fixtures/expired-tokens.json'
+          tokenFile: 'tmp/expired-tokens.json'
         }
       };
 
@@ -116,12 +109,12 @@ describe('auth', function() {
     });
 
     it('initializes the one-time authorization flow if no access tokens ' +
-        'exists', function(done) {
+        'exists.', function(done) {
 
       var context =  {
         config: {
           ids: 'ga:12345',
-          tokenFile: 'test/fixtures/i-dont-exist.json'
+          tokenFile: 'tmp/i-dont-exist.json'
         }
       };
 
@@ -154,7 +147,7 @@ describe('auth', function() {
       var context =  {
         config: {
           ids: 'ga:12345',
-          tokenFile: 'test/fixtures/unparsable-tokens.json'
+          tokenFile: 'tmp/unparsable-tokens.json'
         }
       };
 
@@ -184,7 +177,7 @@ describe('auth', function() {
       var context =  {
         config: {
           ids: 'ga:12345',
-          tokenFile: 'test/fixtures/unparsable-tokens.json'
+          tokenFile: 'tmp/unparsable-tokens.json'
         }
       };
 
@@ -203,7 +196,7 @@ describe('auth', function() {
         assert(logStub.calledTwice);
         assert(logStub.getCall(0).args[0].indexOf('user-code') >= 0);
         assert(logStub.getCall(1).args[0].indexOf('You have denied the ' +
-            'request to access your Google Analytics account') >= 0);
+            'request to access your Google Analytics account.') >= 0);
 
         logStub.restore();
         exitStub.restore();

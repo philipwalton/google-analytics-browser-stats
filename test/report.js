@@ -3,6 +3,8 @@ var assert = require('assert');
 var Promise = require('bluebird');
 
 var report = require('../lib/report');
+var config = require('../lib/config');
+
 var readJSON = Promise.promisify(fs.readJSON);
 
 describe('report', function() {
@@ -17,13 +19,10 @@ describe('report', function() {
         function(done) {
 
       var context =  {
-        config: {
+        config: config.defaults({
           ids: 'ga:12345',
-          metric: 'ga:sessions',
-          days: 30,
-          threshold: 0,
           outputFile: 'tmp/stats.json'
-        }
+        })
       };
 
       readJSON('test/fixtures/query-results.json')

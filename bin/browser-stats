@@ -4,12 +4,12 @@ var fs = require('fs-extra');
 var path = require('path');
 var program = require('commander');
 var Promise = require('bluebird');
-var defaults = require('lodash-node/modern').defaults;
 
 var log = require('../lib/log');
 var auth = require('../lib/auth');
 var api = require('../lib/api');
 var report = require('../lib/report');
+var config = require('../lib/config');
 
 var readJSON = Promise.promisify(fs.readJSON);
 
@@ -17,35 +17,32 @@ function getPackageInfo() {
   var basePath = path.normalize(__dirname + path.sep + '..');
   var pkgFile = path.join(basePath, 'package.json');
   return readJSON(pkgFile)
-    .bind(this)
-    .then(function(data) {
-      this.pkg = data;
-    });
+      .bind(this)
+      .then(function(data) {
+        this.pkg = data;
+      });
 }
 
 function runCLI() {
   program
     .version(this.pkg.version)
     .usage('[options]')
-    .option('-i, --ids [value]', 'the ID of the view to query', gaOptional)
+    .option('-i, --ids [value]',
+        'the ID of the view to query', gaPrefixOptional)
     .option('-m, --metric [metric]',
-      'the metric to query [sessions]', gaOptional, 'ga:sessions')
+        'the metric to query [sessions]', gaPrefixOptional)
     .option('-d, --days [count]',
-      'the number of days to include in the query [30]', '30')
+        'the number of days to include in the query [30]', '30')
     .option('-c, --config-file [file]',
-      'a file with config data [ga-config.json]',
-      'ga-config.json')
+        'a file with config data [ga-config.json]', 'ga-config.json')
     .option('-o, --output-file [file]',
-      'the file to output results [ga-browser-stats.json]',
-      'ga-browser-stats.json')
+        'the file to output results [ga-browser-stats.json]')
     .option('-t, --token-file [file]',
-      'the file to store the oauth2 access and refresh tokens [.ga-tokens]',
-      '.ga-tokens')
+        'the file to store the oauth2 access and refresh tokens [.ga-tokens]')
     .option('--threshold [percentage]',
-      'exclude results whose percentage of the total is below this amount [0]',
-      '0')
+        'exclude results whose percentage of the total is below this value [0]')
     .option('--verbose',
-      'print more detailed progress information to the console');
+        'print more detailed progress information to the console');
 
   program.parse(process.argv);
 
@@ -64,8 +61,8 @@ function runCLI() {
 function getConfig() {
   return readJSON(this.config.configFile)
     .bind(this)
-    .then(function(data) {
-      defaults(this.config, data);
+    .then(function(configFileOverrides) {
+      config.defaults(this.config, configFileOverrides);
     })
     .catch(function() {
       // It's OK if the config file doesn't exists.
@@ -94,7 +91,7 @@ function camelCase(str) {
   });
 }
 
-function gaOptional(str) {
+function gaPrefixOptional(str) {
   return str.substr(0,3) == 'ga:' ? str : 'ga:' + str;
 }
 

@@ -6,6 +6,7 @@ var Promise = require('bluebird');
 var request = require('../lib/request');
 var params = require('../lib/params');
 var auth = require('../lib/auth');
+var config = require('../lib/config');
 
 var outputFile = Promise.promisify(fs.outputFile);
 
@@ -72,10 +73,10 @@ describe('auth', function() {
         'not expired.', function(done) {
 
       var context =  {
-        config: {
+        config: config.defaults({
           ids: 'ga:12345',
           tokenFile: 'tmp/valid-tokens.json'
-        }
+        })
       };
 
       auth.getAccessToken.call(context).then(function() {
@@ -88,10 +89,10 @@ describe('auth', function() {
     it('refreshes the access token when it has expired.', function(done) {
 
       var context =  {
-        config: {
+        config: config.defaults({
           ids: 'ga:12345',
           tokenFile: 'tmp/expired-tokens.json'
-        }
+        })
       };
 
       var postStub = sinon.stub(request, 'post');
@@ -112,10 +113,10 @@ describe('auth', function() {
         'exists.', function(done) {
 
       var context =  {
-        config: {
+        config: config.defaults({
           ids: 'ga:12345',
           tokenFile: 'tmp/i-dont-exist.json'
-        }
+        })
       };
 
       var logStub = sinon.stub(console, 'log', function() {});
@@ -145,10 +146,10 @@ describe('auth', function() {
         'reading the tokens file.', function(done) {
 
       var context =  {
-        config: {
+        config: config.defaults({
           ids: 'ga:12345',
           tokenFile: 'tmp/unparsable-tokens.json'
-        }
+        })
       };
 
       var logStub = sinon.stub(console, 'log', function() {});
@@ -175,10 +176,10 @@ describe('auth', function() {
     it('logs a message if the user declines authorization.', function(done) {
 
       var context =  {
-        config: {
+        config: config.defaults({
           ids: 'ga:12345',
           tokenFile: 'tmp/unparsable-tokens.json'
-        }
+        })
       };
 
       var logStub = sinon.stub(console, 'log', function() {});

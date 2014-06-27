@@ -5,6 +5,7 @@ var Promise = require('bluebird');
 var request = require('../lib/request');
 var params = require('../lib/params');
 var api = require('../lib/api');
+var config = require('../lib/config');
 
 var queryResult = {
   foo: 'bar'
@@ -18,11 +19,7 @@ describe('api', function() {
         function(done) {
 
       var context =  {
-        config: {
-          ids: 'ga:12345',
-          metric: 'ga:sessions',
-          days: 30
-        },
+        config: config.defaults({ids:'ga:12345'}),
         tokenData: {
           access_token: 'some-access-token'
         }

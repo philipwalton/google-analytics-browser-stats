@@ -1,11 +1,12 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var Promise = require('bluebird');
+var defaults = require('lodash-node').defaults;
 
 var request = require('../lib/request');
 var params = require('../lib/params');
 var api = require('../lib/api');
-var config = require('../lib/config');
+var defaultConfig = require('../lib/config').defaults;
 
 var queryResult = {
   foo: 'bar'
@@ -19,7 +20,7 @@ describe('api', function() {
         function(done) {
 
       var context =  {
-        config: config.defaults({ids:'ga:12345'}),
+        config: defaults({ids:'ga:12345'}, defaultConfig),
         tokenData: {
           access_token: 'some-access-token'
         }

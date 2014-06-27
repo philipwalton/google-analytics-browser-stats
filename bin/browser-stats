@@ -4,12 +4,13 @@ var fs = require('fs-extra');
 var path = require('path');
 var program = require('commander');
 var Promise = require('bluebird');
+var defaults = require('lodash-node').defaults;
 
 var log = require('../lib/log');
 var auth = require('../lib/auth');
 var api = require('../lib/api');
 var report = require('../lib/report');
-var config = require('../lib/config');
+var defaultConfig = require('../lib/config').defaults;
 
 var readJSON = Promise.promisify(fs.readJSON);
 
@@ -62,7 +63,7 @@ function getConfig() {
   return readJSON(this.config.configFile)
     .bind(this)
     .then(function(configFileOverrides) {
-      config.defaults(this.config, configFileOverrides);
+      defaults(this.config, fileConfig, defaultConfig);
     })
     .catch(function() {
       // It's OK if the config file doesn't exists.

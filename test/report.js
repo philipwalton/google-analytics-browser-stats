@@ -1,9 +1,10 @@
 var fs = require('fs-extra');
 var assert = require('assert');
 var Promise = require('bluebird');
+var defaults = require('lodash-node').defaults;
 
 var report = require('../lib/report');
-var config = require('../lib/config');
+var defaultConfig = require('../lib/config').defaults;
 
 var readJSON = Promise.promisify(fs.readJSON);
 
@@ -19,10 +20,10 @@ describe('report', function() {
         function(done) {
 
       var context =  {
-        config: config.defaults({
+        config: defaults({
           ids: 'ga:12345',
           outputFile: 'tmp/stats.json'
-        })
+        }, defaultConfig)
       };
 
       readJSON('test/fixtures/query-results.json')

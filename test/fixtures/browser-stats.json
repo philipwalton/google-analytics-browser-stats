@@ -1,0 +1,125 @@
+{
+  "total": 100,
+  "metric": "sessions",
+  "viewId": "12345",
+  "dateRange": "Last 30 days",
+  "generatedOn": "Fri Jun 27 2014 10:56:37 GMT-0700 (PDT)",
+  "browsers": [
+    {
+      "name": "Chrome",
+      "count": 38,
+      "percentOfTotal": 38
+    },
+    {
+      "name": "Firefox",
+      "count": 31,
+      "percentOfTotal": 31
+    },
+    {
+      "name": "Internet Explorer",
+      "count": 18,
+      "percentOfTotal": 18
+    },
+    {
+      "name": "Android Browser",
+      "count": 6,
+      "percentOfTotal": 6
+    },
+    {
+      "name": "Opera",
+      "count": 4,
+      "percentOfTotal": 4
+    },
+    {
+      "name": "Some Random Browser",
+      "count": 3,
+      "percentOfTotal": 3
+    }
+  ],
+  "versions": [
+    {
+      "name": "Chrome",
+      "version": "35.0",
+      "count": 30,
+      "percentOfTotal": 30,
+      "percentOfBrowser": 78.94737
+    },
+    {
+      "name": "Firefox",
+      "version": "29.0",
+      "count": 16,
+      "percentOfTotal": 16,
+      "percentOfBrowser": 51.6129
+    },
+    {
+      "name": "Firefox",
+      "version": "28.0",
+      "count": 12,
+      "percentOfTotal": 12,
+      "percentOfBrowser": 38.70968
+    },
+    {
+      "name": "Internet Explorer",
+      "version": "11.0",
+      "count": 12,
+      "percentOfTotal": 12,
+      "percentOfBrowser": 66.66667
+    },
+    {
+      "name": "Chrome",
+      "version": "34.0",
+      "count": 8,
+      "percentOfTotal": 8,
+      "percentOfBrowser": 21.05263
+    },
+    {
+      "name": "Internet Explorer",
+      "version": "10.0",
+      "count": 6,
+      "percentOfTotal": 6,
+      "percentOfBrowser": 33.33333
+    },
+    {
+      "name": "Android Browser",
+      "version": "4.0",
+      "count": 4,
+      "percentOfTotal": 4,
+      "percentOfBrowser": 66.66667
+    },
+    {
+      "name": "Opera",
+      "version": "22.0",
+      "count": 4,
+      "percentOfTotal": 4,
+      "percentOfBrowser": 100
+    },
+    {
+      "name": "Firefox",
+      "version": "3.6",
+      "count": 3,
+      "percentOfTotal": 3,
+      "percentOfBrowser": 9.67742
+    },
+    {
+      "name": "Android Browser",
+      "version": "4.1",
+      "count": 2,
+      "percentOfTotal": 2,
+      "percentOfBrowser": 33.33333
+    },
+    {
+      "name": "Some Random Browser",
+      "version": "1.2",
+      "count": 2,
+      "percentOfTotal": 2,
+      "percentOfBrowser": 66.66667
+    },
+    {
+      "name": "Some Random Browser",
+      "version": "(unknown)",
+      "count": 1,
+      "percentOfTotal": 1,
+      "percentOfBrowser": 33.33333
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "kind": "analytics#gaData",
+  "id": "https://www.googleapis.com/analytics/v3/data/ga?ids=ga:12345&dimensions=ga:browser,ga:browserVersion&metrics=ga:sessions&start-date=30daysAgo&end-date=yesterday",
+  "query": {
+    "start-date": "30daysAgo",
+    "end-date": "yesterday",
+    "ids": "ga:12345",
+    "dimensions": "ga:browser,ga:browserVersion",
+    "metrics": [
+      "ga:sessions"
+    ],
+    "start-index": 1,
+    "max-results": 1000
+  },
+  "itemsPerPage": 1000,
+  "totalResults": 12,
+  "selfLink": "https://www.googleapis.com/analytics/v3/data/ga?ids=ga:12345&dimensions=ga:browser,ga:browserVersion&metrics=ga:sessions&start-date=30daysAgo&end-date=yesterday",
+  "profileInfo": {
+    "profileId": "12345",
+    "accountId": "XXXXX",
+    "webPropertyId": "UA-XXXXX-1",
+    "internalWebPropertyId": "YYYYYY",
+    "profileName": "example.com",
+    "tableId": "ga:12345"
+  },
+  "containsSampledData": false,
+  "columnHeaders": [
+    {
+      "name": "ga:browser",
+      "columnType": "DIMENSION",
+      "dataType": "STRING"
+    },
+    {
+      "name": "ga:browserVersion",
+      "columnType": "DIMENSION",
+      "dataType": "STRING"
+    },
+    {
+      "name": "ga:sessions",
+      "columnType": "METRIC",
+      "dataType": "INTEGER"
+    }
+  ],
+  "totalsForAllResults": {
+    "ga:sessions": "100"
+  },
+  "rows": [
+    [
+      "Android Browser",
+      "4.0",
+      "4"
+    ],
+    [
+      "Android Browser",
+      "4.1",
+      "2"
+    ],
+    [
+      "Chrome",
+      "35.0.2038.0",
+      "30"
+    ],
+    [
+      "Chrome",
+      "34.0.2343.0",
+      "8"
+    ],
+    [
+      "Firefox",
+      "29.0",
+      "16"
+    ],
+    [
+      "Firefox",
+      "28.0",
+      "12"
+    ],
+    [
+      "Firefox",
+      "3.6",
+      "3"
+    ],
+    [
+      "Internet Explorer",
+      "11.0",
+      "12"
+    ],
+    [
+      "Internet Explorer",
+      "10.0",
+      "6"
+    ],
+    [
+      "Opera",
+      "22.0.1471.16",
+      "4"
+    ],
+    [
+      "Some Random Browser",
+      "(not set)",
+      "1"
+    ],
+    [
+      "Some Random Browser",
+      "1.2.3",
+      "2"
+    ]
+  ]
+}

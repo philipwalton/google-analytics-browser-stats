@@ -1,9 +1,9 @@
 mods := ./node_modules
 bins := ./node_modules/.bin
-src := bin/* lib/*
-test := test/*
+src := bin/* lib/*.js
+test := test/*.js
 
-all: install lint
+all: install lint test
 
 install:
 	@ npm install
@@ -12,6 +12,6 @@ lint: $(src) $(test)
 	@ $(bins)/jshint --verbose $^
 
 test: $(test)
-	$(bins)/mocha --reporter spec
+	@ $(bins)/mocha --reporter spec
 
-.PHONY: all install lint
+.PHONY: all install lint test

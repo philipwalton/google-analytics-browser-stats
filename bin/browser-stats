@@ -2,11 +2,9 @@
 
 var fs = require('fs-extra');
 var path = require('path');
-var util = require('util');
 var program = require('commander');
 var Promise = require('bluebird');
 var defaults = require('lodash-node/modern').defaults;
-var pick = require('lodash-node/modern').pick;
 
 var log = require('../lib/log');
 var auth = require('../lib/auth');
@@ -14,8 +12,6 @@ var api = require('../lib/api');
 var report = require('../lib/report');
 
 var readJSON = Promise.promisify(fs.readJSON);
-var writeJSON = Promise.promisify(fs.writeJSON);
-
 
 function getPackageInfo() {
   var basePath = path.normalize(__dirname + path.sep + '..');

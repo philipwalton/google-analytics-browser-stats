@@ -1,0 +1,9 @@
+{
+  "ids": "ga:12345",
+  "metric": "ga:sessions",
+  "days": 30,
+  "tokenFile": "tokens.json",
+  "outputFile": "browser-stats.json",
+  "threshold": 0.1,
+  "verbose": false
+}

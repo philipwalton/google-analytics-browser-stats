@@ -6,97 +6,17 @@ var program = require('commander');
 var Promise = require('bluebird');
 var defaults = require('lodash-node').defaults;
 
-var log = require('../lib/log');
+var cli = require('../lib/cli');
 var auth = require('../lib/auth');
 var api = require('../lib/api');
 var report = require('../lib/report');
-var defaultConfig = require('../lib/config').defaults;
 
-var readJSON = Promise.promisify(fs.readJSON);
-
-function getPackageInfo() {
-  var basePath = path.normalize(__dirname + path.sep + '..');
-  var pkgFile = path.join(basePath, 'package.json');
-  return readJSON(pkgFile)
-      .bind(this)
-      .then(function(data) {
-        this.pkg = data;
-      });
-}
-
-function runCLI() {
-  program
-    .version(this.pkg.version)
-    .usage('[options]')
-    .option('-i, --ids [value]',
-        'the ID of the view to query', gaPrefixOptional)
-    .option('-m, --metric [metric]',
-        'the metric to query [sessions]', gaPrefixOptional)
-    .option('-d, --days [count]',
-        'the number of days to include in the query [30]', '30')
-    .option('-c, --config-file [file]',
-        'a file with config data [ga-config.json]', 'ga-config.json')
-    .option('-o, --output-file [file]',
-        'the file to output results [ga-browser-stats.json]')
-    .option('-t, --token-file [file]',
-        'the file to store the oauth2 access and refresh tokens [.ga-tokens]')
-    .option('--threshold [percentage]',
-        'exclude results whose percentage of the total is below this value [0]')
-    .option('--verbose',
-        'print more detailed progress information to the console');
-
-  program.parse(process.argv);
-
-  this.config = {};
-  program.options.forEach(function(option) {
-    var key = camelCase(option.long.slice(2));
-    if (key == 'version') return;
-    var value = program[key];
-    if (value != null) this.config[key] = value;
-  }.bind(this));
-
-  // Set the logger to verbose mode if specified.
-  log.verbose = this.config.verbose;
-}
-
-function getConfig() {
-  return readJSON(this.config.configFile)
-    .bind(this)
-    .then(function(configFileOverrides) {
-      defaults(this.config, fileConfig, defaultConfig);
-    })
-    .catch(function() {
-      // It's OK if the config file doesn't exists.
-      log('No config file found, moving on.');
-    })
-    .then(function() {
-      if (!this.config.ids) {
-        console.log('\n' +
-          'Error: '.red + 'The "ids" option is required.\n' +
-          'It must be specified in the config file or as a command ' +
-          'line option.\n'
-        );
-        process.exit(1);
-      }
-    });
-}
 
 function onComplete() {
   console.log('Success! '.green + 'Report saved to ' + this.config.outputFile);
 }
 
-function camelCase(str) {
-  var pattern = /\-\w/;
-  return str.replace(pattern, function(match) {
-    return match[1].toUpperCase();
-  });
-}
-
-function gaPrefixOptional(str) {
-  return str.substr(0,3) == 'ga:' ? str : 'ga:' + str;
-}
-
-function showStackTrace(err) {
+function onError(err) {
   console.error(err.stack);
 }
 
@@ -106,11 +26,9 @@ function showStackTrace(err) {
 var data = {};
 
 Promise.bind(data)
-  .then(getPackageInfo)
-  .then(runCLI)
-  .then(getConfig)
+  .then(cli.getConfig)
   .then(auth.getAccessToken)
   .then(api.query)
   .then(report.output)
   .then(onComplete)
-  .catch(showStackTrace);
+  .catch(onError);

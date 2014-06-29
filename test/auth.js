@@ -64,9 +64,11 @@ describe('auth', function() {
     Promise.all(promises).then(function() {
       done();
     });
+    sinon.stub(log, 'trace');
   });
 
-  after(function(done) {
+  afterEach(function(done) {
+    log.trace.restore();
     fs.remove('tmp', done);
   });
 

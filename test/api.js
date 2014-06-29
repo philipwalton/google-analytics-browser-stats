@@ -6,6 +6,7 @@ var defaults = require('lodash-node').defaults;
 var request = require('../lib/request');
 var params = require('../lib/params');
 var api = require('../lib/api');
+var log = require('../lib/log');
 var defaultConfig = require('../lib/config').defaults;
 
 var queryResult = {
@@ -26,12 +27,14 @@ describe('api', function() {
         }
       };
 
+      var traceStub = sinon.stub(log, 'trace');
       var getStub = sinon.stub(request, 'get');
       getStub.returns(Promise.resolve(JSON.stringify(queryResult)));
 
       api.query.call(context).then(function() {
         assert.deepEqual(this.results, queryResult);
 
+        traceStub.restore();
         getStub.restore();
         done();
       });

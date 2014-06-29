@@ -3,11 +3,13 @@ var assert = require('assert');
 var sinon = require('sinon');
 var Promise = require('bluebird');
 var defaults = require('lodash-node').defaults;
+var printf = require('printf');
 
 var request = require('../lib/request');
 var params = require('../lib/params');
 var auth = require('../lib/auth');
 var defaultConfig = require('../lib/config').defaults;
+var log = require('../lib/log');
 
 var outputFile = Promise.promisify(fs.outputFile);
 
@@ -120,8 +122,9 @@ describe('auth', function() {
         }, defaultConfig)
       };
 
-      var logStub = sinon.stub(console, 'log', function() {});
+      var alertStub = sinon.stub(log, 'alert', function() {});
       var postStub = sinon.stub(request, 'post');
+
       postStub.withArgs(params.forDeviceCodeRequest())
           .returns(responses.deviceCodeData);
       postStub.withArgs(params.forAccessTokenRequest('some-device-code'))
@@ -133,10 +136,11 @@ describe('auth', function() {
         assert.equal(this.tokenData.access_token,
             'some-new-access-token');
 
-        assert(logStub.calledOnce);
-        assert(logStub.getCall(0).args[0].indexOf('user-code') >= 0);
+        var alertMessage = printf.apply(null, alertStub.getCall(0).args);
+        assert(alertStub.calledOnce);
+        assert(alertMessage.indexOf('some-user-code') >= 0);
 
-        logStub.restore();
+        alertStub.restore();
         postStub.restore();
         done();
       });
@@ -153,7 +157,7 @@ describe('auth', function() {
         }, defaultConfig)
       };
 
-      var logStub = sinon.stub(console, 'log', function() {});
+      var alertStub = sinon.stub(log, 'alert', function() {});
       var postStub = sinon.stub(request, 'post');
       postStub.withArgs(params.forDeviceCodeRequest())
           .returns(responses.deviceCodeData);
@@ -164,10 +168,11 @@ describe('auth', function() {
         assert.equal(this.tokenData.access_token,
             'some-new-access-token');
 
-        assert(logStub.calledOnce);
-        assert(logStub.getCall(0).args[0].indexOf('user-code') >= 0);
+        var alertMessage = printf.apply(null, alertStub.getCall(0).args);
+        assert(alertStub.calledOnce);
+        assert(alertMessage.indexOf('some-user-code') >= 0);
 
-        logStub.restore();
+        alertStub.restore();
         postStub.restore();
         done();
       });
@@ -183,8 +188,8 @@ describe('auth', function() {
         }, defaultConfig)
       };
 
-      var logStub = sinon.stub(console, 'log', function() {});
-      var exitStub = sinon.stub(process, 'exit', function() {});
+      var alertStub = sinon.stub(log, 'alert', function() {});
+      var errorStub = sinon.stub(log, 'error', function() {});
 
       var postStub = sinon.stub(request, 'post');
       postStub.withArgs(params.forDeviceCodeRequest())
@@ -193,15 +198,16 @@ describe('auth', function() {
           .returns(responses.authorizationDenied);
 
       auth.getAccessToken.call(context).then(function() {
-        assert(exitStub.calledOnce);
 
-        assert(logStub.calledTwice);
-        assert(logStub.getCall(0).args[0].indexOf('user-code') >= 0);
-        assert(logStub.getCall(1).args[0].indexOf('You have denied the ' +
-            'request to access your Google Analytics account.') >= 0);
+        var alertMessage = printf.apply(null, alertStub.getCall(0).args);
+        var errorMessage = printf.apply(null, errorStub.getCall(0).args);
+        assert(alertStub.calledOnce);
+        assert(errorStub.calledOnce);
+        assert(alertMessage.indexOf('some-user-code') >= 0);
+        assert(errorMessage.indexOf('You have denied the request') >= 0);
 
-        logStub.restore();
-        exitStub.restore();
+        alertStub.restore();
+        errorStub.restore();
         postStub.restore();
         done();
       });

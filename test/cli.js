@@ -2,9 +2,9 @@ var fs = require('fs-extra');
 var assert = require('assert');
 var sinon = require('sinon');
 var Promise = require('bluebird');
-var exec = require('child_process').exec;
-
+var printf = require('printf');
 var cli = require('../lib/cli');
+var log = require('../lib/log');
 var originalArgv = process.argv;
 
 function stubArgv(command) {
@@ -86,19 +86,15 @@ describe('cli', function() {
 
       stubArgv('node config.js');
 
-      var logStub = sinon.stub(console, 'log', function() {});
-      var exitStub = sinon.stub(process, 'exit', function() {});
+      var errorStub = sinon.stub(log, 'error', function() {});
 
       cli.getConfig().then(function(config) {
 
-        assert(exitStub.calledOnce);
-        assert(logStub.calledOnce);
+        var errorMessage = printf.apply(null, errorStub.getCall(0).args);
+        assert(errorStub.calledOnce);
+        assert(errorMessage.indexOf('The "ids" option is required') >= 0);
 
-        var logMessage = logStub.getCall(0).args[0];
-        assert(logMessage.indexOf('The "ids" option is required') >= 0);
-
-        logStub.restore();
-        exitStub.restore();
+        errorStub.restore();
         done();
       });
 

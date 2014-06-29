@@ -1,34 +1,13 @@
 #!/usr/bin/env node
 
-var fs = require('fs-extra');
-var path = require('path');
-var program = require('commander');
 var Promise = require('bluebird');
-var defaults = require('lodash-node').defaults;
-
 var cli = require('../lib/cli');
 var auth = require('../lib/auth');
 var api = require('../lib/api');
 var report = require('../lib/report');
 
-
-function onComplete() {
-  console.log('Success! '.green + 'Report saved to ' + this.config.outputFile);
-}
-
-function onError(err) {
-  console.error(err.stack);
-}
-
-/**
- * An object that will be bound to each promise as its context.
- */
-var data = {};
-
-Promise.bind(data)
-  .then(cli.getConfig)
-  .then(auth.getAccessToken)
-  .then(api.query)
-  .then(report.output)
-  .then(onComplete)
-  .catch(onError);
+Promise.bind({})
+    .then(cli.getConfig)
+    .then(auth.getAccessToken)
+    .then(api.query)
+    .then(report.output);

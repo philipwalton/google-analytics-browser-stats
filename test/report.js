@@ -1,8 +1,9 @@
 var fs = require('fs-extra');
 var assert = require('assert');
+var sinon = require('sinon');
 var Promise = require('bluebird');
 var defaults = require('lodash-node').defaults;
-
+var log = require('../lib/log');
 var report = require('../lib/report');
 var defaultConfig = require('../lib/config').defaults;
 
@@ -25,6 +26,8 @@ describe('report', function() {
           outputFile: 'tmp/stats.json'
         }, defaultConfig)
       };
+
+      var alertStub = sinon.stub(log, 'alert');
 
       readJSON('test/fixtures/query-results.json')
           .bind(context)

@@ -27,7 +27,7 @@ describe('report', function() {
         }, defaultConfig)
       };
 
-      var alertStub = sinon.stub(log, 'alert');
+      var successStub = sinon.stub(log, 'success');
 
       readJSON('test/fixtures/query-results.json')
           .bind(context)
@@ -50,6 +50,7 @@ describe('report', function() {
 
           assert.deepEqual(actual, expected);
 
+          successStub.restore();
           done();
         });
 

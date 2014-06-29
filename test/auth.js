@@ -42,13 +42,13 @@ var responses = {
 
 var fixtures = {
   'tmp/valid-tokens.json': JSON.stringify({
-    access_token: 'some-valid-access-token',
-    refresh_token: 'some-unneeded-refresh-token',
+    accessToken: 'some-valid-access-token',
+    refreshToken: 'some-unneeded-refresh-token',
     expires: Date.now() + (2 * 60 * 60 * 1000) // Two hours from nom.
   }),
   'tmp/expired-tokens.json': JSON.stringify({
-    access_token: 'some-expired-access-token',
-    refresh_token: 'some-needed-refresh-token',
+    accessToken: 'some-expired-access-token',
+    refreshToken: 'some-needed-refresh-token',
     expires: Date.now()
   }),
   'tmp/unparsable-tokens.json': 'Unparsable JSON...'
@@ -85,7 +85,7 @@ describe('auth', function() {
       };
 
       auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.access_token, 'some-valid-access-token');
+        assert.equal(this.tokenData.accessToken, 'some-valid-access-token');
         done();
       });
     });
@@ -105,7 +105,7 @@ describe('auth', function() {
           .returns(responses.refreshSuccess);
 
       auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.access_token,
+        assert.equal(this.tokenData.accessToken,
             'some-refreshed-access-token');
 
         postStub.restore();
@@ -135,7 +135,7 @@ describe('auth', function() {
           .onThirdCall().returns(responses.authorizationSuccess);
 
       auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.access_token,
+        assert.equal(this.tokenData.accessToken,
             'some-new-access-token');
 
         var alertMessage = printf.apply(null, alertStub.getCall(0).args);
@@ -167,7 +167,7 @@ describe('auth', function() {
           .returns(responses.authorizationSuccess);
 
       auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.access_token,
+        assert.equal(this.tokenData.accessToken,
             'some-new-access-token');
 
         var alertMessage = printf.apply(null, alertStub.getCall(0).args);

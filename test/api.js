@@ -35,7 +35,6 @@ describe('api', function() {
           .then(api.query)
           .then(function(results) {
 
-        assert.deepEqual(this.results, queryResult);
         assert.deepEqual(results, queryResult);
 
         traceStub.restore();

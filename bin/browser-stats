@@ -5,9 +5,20 @@ var cli = require('../lib/cli');
 var auth = require('../lib/auth');
 var api = require('../lib/api');
 var report = require('../lib/report');
+var log = require('../lib/log');
 
-Promise.bind({})
+/**
+ * The context object is bound to `this` for all callbacks in the
+ * promise chain. This is where all global config data is stored for
+ * easy access by consumers.
+ */
+var context = {};
+
+Promise.bind(context)
     .then(cli.getConfig)
     .then(auth.getAccessToken)
     .then(api.query)
-    .then(report.output);
+    .then(report.output)
+    .then(function() {
+      log.success('*Success!* Report saved to "%s"', this.config.outputFile);
+    });

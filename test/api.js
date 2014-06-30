@@ -23,7 +23,7 @@ describe('api', function() {
       var context =  {
         config: defaults({ids:'ga:12345'}, defaultConfig),
         tokenData: {
-          access_token: 'some-access-token'
+          accessToken: 'some-access-token'
         }
       };
 
@@ -31,8 +31,12 @@ describe('api', function() {
       var getStub = sinon.stub(request, 'get');
       getStub.returns(Promise.resolve(JSON.stringify(queryResult)));
 
-      api.query.call(context).then(function() {
+      Promise.bind(context)
+          .then(api.query)
+          .then(function(results) {
+
         assert.deepEqual(this.results, queryResult);
+        assert.deepEqual(results, queryResult);
 
         traceStub.restore();
         getStub.restore();

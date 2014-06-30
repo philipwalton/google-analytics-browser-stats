@@ -84,12 +84,13 @@ describe('auth', function() {
         }, defaultConfig)
       };
 
-      auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.accessToken, 'some-valid-access-token');
-        done();
-      });
+      Promise.bind(context)
+          .then(auth.getAccessToken)
+          .then(function() {
+            assert.equal(this.tokenData.accessToken, 'some-valid-access-token');
+            done();
+          });
     });
-
 
     it('refreshes the access token when it has expired.', function(done) {
 

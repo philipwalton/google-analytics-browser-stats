@@ -14,14 +14,14 @@ function stubArgv(command) {
   process.argv = command.split(' ');
 }
 
-describe('browser-stats', function() {
+describe('end-to-end', function() {
 
   afterEach(function() {
     process.argv = originalArgv;
   });
 
   it('parses the command line args, authorizes the user, queries the api, ' +
-      'and generates a report', function(done) {
+      'and generates a report.', function(done) {
 
     stubArgv('node browser-stats -i 1234');
 

@@ -32,7 +32,7 @@ var fixtures = {
 };
 
 
-describe('auth', function() {
+describe('auth.getAccessToken', function() {
 
   beforeEach(function(done) {
     var promises = Object.keys(fixtures).map(function(key) {
@@ -49,149 +49,145 @@ describe('auth', function() {
     fs.remove('tmp', done);
   });
 
-  describe('.getAccessToken', function() {
+  it('gets the access token from the token file if it is present and ' +
+      'not expired.', function(done) {
 
-    it('gets the access token from the token file if it is present and ' +
-        'not expired.', function(done) {
+    var context =  {
+      config: {
+        tokenFile: 'tmp/valid-tokens.json'
+      }
+    };
 
-      var context =  {
-        config: {
-          tokenFile: 'tmp/valid-tokens.json'
-        }
-      };
+    Promise.bind(context)
+        .then(auth.getAccessToken)
+        .then(function(accessToken) {
+          assert.equal(accessToken, 'some-valid-access-token');
+          done();
+        });
+  });
 
-      Promise.bind(context)
-          .then(auth.getAccessToken)
-          .then(function(accessToken) {
-            assert.equal(accessToken, 'some-valid-access-token');
-            done();
-          });
-    });
+  it('refreshes the access token when it has expired.', function(done) {
 
-    it('refreshes the access token when it has expired.', function(done) {
+    var context =  {
+      config: {
+        tokenFile: 'tmp/expired-tokens.json'
+      }
+    };
 
-      var context =  {
-        config: {
-          tokenFile: 'tmp/expired-tokens.json'
-        }
-      };
+    var postStub = sinon.stub(request, 'post');
+    postStub.withArgs(params.forRefreshRequest('some-needed-refresh-token'))
+        .returns(responses.refreshSuccess);
 
-      var postStub = sinon.stub(request, 'post');
-      postStub.withArgs(params.forRefreshRequest('some-needed-refresh-token'))
-          .returns(responses.refreshSuccess);
+    auth.getAccessToken.call(context).then(function(accessToken) {
+      assert.equal(accessToken, 'some-refreshed-access-token');
 
-      auth.getAccessToken.call(context).then(function(accessToken) {
-        assert.equal(accessToken, 'some-refreshed-access-token');
-
-        postStub.restore();
-        done();
-      });
-
-    });
-
-    it('initializes the one-time authorization flow if no access tokens ' +
-        'exists.', function(done) {
-
-      var context =  {
-        config: {
-          tokenFile: 'tmp/i-dont-exist.json'
-        }
-      };
-
-      var alertStub = sinon.stub(log, 'alert', function() {});
-      var postStub = sinon.stub(request, 'post');
-
-      postStub.withArgs(params.forDeviceCodeRequest())
-          .returns(responses.deviceCodeData);
-      postStub.withArgs(params.forAccessTokenRequest('some-device-code'))
-          .onFirstCall().returns(responses.authorizationPending)
-          .onSecondCall().returns(responses.authorizationPending)
-          .onThirdCall().returns(responses.authorizationSuccess);
-
-      auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.accessToken,
-            'some-new-access-token');
-
-        var alertMessage = printf.apply(null, alertStub.getCall(0).args);
-        assert(alertStub.calledOnce);
-        assert(alertMessage.indexOf('some-user-code') >= 0);
-
-        alertStub.restore();
-        postStub.restore();
-        done();
-      });
-
-    });
-
-    it('initializes the one-time authorization flow if there is an error ' +
-        'reading the tokens file.', function(done) {
-
-      var context =  {
-        config: {
-          tokenFile: 'tmp/unparsable-tokens.json'
-        }
-      };
-
-      var alertStub = sinon.stub(log, 'alert', function() {});
-      var postStub = sinon.stub(request, 'post');
-      postStub.withArgs(params.forDeviceCodeRequest())
-          .returns(responses.deviceCodeData);
-      postStub.withArgs(params.forAccessTokenRequest('some-device-code'))
-          .returns(responses.authorizationSuccess);
-
-      auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.accessToken,
-            'some-new-access-token');
-
-        var alertMessage = printf.apply(null, alertStub.getCall(0).args);
-        assert(alertStub.calledOnce);
-        assert(alertMessage.indexOf('some-user-code') >= 0);
-
-        alertStub.restore();
-        postStub.restore();
-        done();
-      });
-
-    });
-
-    it('saves the tokens to disk anytime new token data is received',
-        function(done) {
-
+      postStub.restore();
       done();
     });
 
-    it('logs a message if the user declines authorization.', function(done) {
+  });
 
-      var context =  {
-        config: {
-          tokenFile: 'tmp/unparsable-tokens.json'
-        }
-      };
+  it('initializes the one-time authorization flow if no access tokens ' +
+      'exists.', function(done) {
 
-      var alertStub = sinon.stub(log, 'alert', function() {});
-      var errorStub = sinon.stub(log, 'error', function() {});
+    var context =  {
+      config: {
+        tokenFile: 'tmp/i-dont-exist.json'
+      }
+    };
 
-      var postStub = sinon.stub(request, 'post');
-      postStub.withArgs(params.forDeviceCodeRequest())
-          .returns(responses.deviceCodeData);
-      postStub.withArgs(params.forAccessTokenRequest('some-device-code'))
-          .returns(responses.authorizationDenied);
+    var alertStub = sinon.stub(log, 'alert', function() {});
+    var postStub = sinon.stub(request, 'post');
 
-      auth.getAccessToken.call(context).then(function() {
+    postStub.withArgs(params.forDeviceCodeRequest())
+        .returns(responses.deviceCodeData);
+    postStub.withArgs(params.forAccessTokenRequest('some-device-code'))
+        .onFirstCall().returns(responses.authorizationPending)
+        .onSecondCall().returns(responses.authorizationPending)
+        .onThirdCall().returns(responses.authorizationSuccess);
 
-        var alertMessage = printf.apply(null, alertStub.getCall(0).args);
-        var errorMessage = printf.apply(null, errorStub.getCall(0).args);
-        assert(alertStub.calledOnce);
-        assert(errorStub.calledOnce);
-        assert(alertMessage.indexOf('some-user-code') >= 0);
-        assert(errorMessage.indexOf('You have denied the request') >= 0);
+    auth.getAccessToken.call(context).then(function() {
+      assert.equal(this.accessToken,
+          'some-new-access-token');
 
-        alertStub.restore();
-        errorStub.restore();
-        postStub.restore();
-        done();
-      });
+      var alertMessage = printf.apply(null, alertStub.getCall(0).args);
+      assert(alertStub.calledOnce);
+      assert(alertMessage.indexOf('some-user-code') >= 0);
 
+      alertStub.restore();
+      postStub.restore();
+      done();
+    });
+
+  });
+
+  it('initializes the one-time authorization flow if there is an error ' +
+      'reading the tokens file.', function(done) {
+
+    var context =  {
+      config: {
+        tokenFile: 'tmp/unparsable-tokens.json'
+      }
+    };
+
+    var alertStub = sinon.stub(log, 'alert', function() {});
+    var postStub = sinon.stub(request, 'post');
+    postStub.withArgs(params.forDeviceCodeRequest())
+        .returns(responses.deviceCodeData);
+    postStub.withArgs(params.forAccessTokenRequest('some-device-code'))
+        .returns(responses.authorizationSuccess);
+
+    auth.getAccessToken.call(context).then(function() {
+      assert.equal(this.accessToken,
+          'some-new-access-token');
+
+      var alertMessage = printf.apply(null, alertStub.getCall(0).args);
+      assert(alertStub.calledOnce);
+      assert(alertMessage.indexOf('some-user-code') >= 0);
+
+      alertStub.restore();
+      postStub.restore();
+      done();
+    });
+
+  });
+
+  it('saves the tokens to disk anytime new token data is received',
+      function(done) {
+
+    done();
+  });
+
+  it('logs a message if the user declines authorization.', function(done) {
+
+    var context =  {
+      config: {
+        tokenFile: 'tmp/unparsable-tokens.json'
+      }
+    };
+
+    var alertStub = sinon.stub(log, 'alert', function() {});
+    var errorStub = sinon.stub(log, 'error', function() {});
+
+    var postStub = sinon.stub(request, 'post');
+    postStub.withArgs(params.forDeviceCodeRequest())
+        .returns(responses.deviceCodeData);
+    postStub.withArgs(params.forAccessTokenRequest('some-device-code'))
+        .returns(responses.authorizationDenied);
+
+    auth.getAccessToken.call(context).then(function() {
+
+      var alertMessage = printf.apply(null, alertStub.getCall(0).args);
+      var errorMessage = printf.apply(null, errorStub.getCall(0).args);
+      assert(alertStub.calledOnce);
+      assert(errorStub.calledOnce);
+      assert(alertMessage.indexOf('some-user-code') >= 0);
+      assert(errorMessage.indexOf('You have denied the request') >= 0);
+
+      alertStub.restore();
+      errorStub.restore();
+      postStub.restore();
+      done();
     });
 
   });

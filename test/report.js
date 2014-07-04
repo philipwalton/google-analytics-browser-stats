@@ -3,11 +3,12 @@ var assert = require('assert');
 var sinon = require('sinon');
 var Promise = require('bluebird');
 var defaults = require('lodash-node').defaults;
+var fsp = require('../lib/fsp');
 var log = require('../lib/log');
 var report = require('../lib/report');
 var defaultConfig = require('../lib/config').defaults;
 
-var readJSON = Promise.promisify(fs.readJSON);
+
 
 describe('report', function() {
 
@@ -15,7 +16,7 @@ describe('report', function() {
     fs.remove('tmp', done);
   });
 
-  describe('.output', function() {
+  describe('.generate', function() {
 
     it('processes the query result and outputs a the browser stats to a file.',
         function(done) {
@@ -30,13 +31,13 @@ describe('report', function() {
       var traceStub = sinon.stub(log, 'trace');
       var successStub = sinon.stub(log, 'success');
 
-      readJSON('test/fixtures/query-results.json')
+      fsp.readJson('test/fixtures/query-results.json')
           .bind(context)
-          .then(report.output)
+          .then(report.generate)
           .then(function() {
 
-        var actualPromise = readJSON(context.config.outputFile);
-        var expectedPromise = readJSON('test/fixtures/browser-stats.json');
+        var actualPromise = fsp.readJson(context.config.outputFile);
+        var expectedPromise = fsp.readJson('test/fixtures/browser-stats.json');
 
         Promise
             .all([actualPromise, expectedPromise])

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 var Promise = require('bluebird');
+
 var cli = require('../lib/cli');
 var auth = require('../lib/auth');
 var api = require('../lib/api');
 var report = require('../lib/report');
-var log = require('../lib/log');
 
 /**
- * The context object is bound to `this` for all callbacks in the
+ * The context object is bound to `this` for all callbacks in the main
  * promise chain. This is where all global config data is stored for
  * easy access by consumers.
  */
@@ -18,7 +18,4 @@ Promise.bind(context)
     .then(cli.getConfig)
     .then(auth.getAccessToken)
     .then(api.query)
-    .then(report.output)
-    .then(function() {
-      log.success('*Success!* Report saved to "%s"', this.config.outputFile);
-    });
+    .then(report.generate);

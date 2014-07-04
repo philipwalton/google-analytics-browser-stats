@@ -10,47 +10,24 @@ var params = require('../lib/params');
 var auth = require('../lib/auth');
 var defaultConfig = require('../lib/config').defaults;
 var log = require('../lib/log');
+var fsp = require('../lib/fsp');
 
-var outputFile = Promise.promisify(fs.outputFile);
-
-var responses = {
-  refreshSuccess: Promise.resolve(JSON.stringify({
-    access_token: 'some-refreshed-access-token',
-    token_type: 'Bearer',
-    expires_in: 3600
-  })),
-  deviceCodeData: Promise.resolve(JSON.stringify({
-    device_code : 'some-device-code',
-    user_code : 'some-user-code',
-    verification_url : 'http://www.google.com/device',
-    expires_in : 1800,
-    interval : 0.01 // No need to wait the usual 5 seconds to poll.
-  })),
-  authorizationPending: Promise.resolve(JSON.stringify({
-    error : 'authorization_pending'
-  })),
-  authorizationDenied: Promise.resolve(JSON.stringify({
-    error : 'access_denied'
-  })),
-  authorizationSuccess: Promise.resolve(JSON.stringify({
-    access_token : 'some-new-access-token',
-    token_type : 'Bearer',
-    expires_in : 3600,
-    refresh_token : 'some-new-refresh-token'
-  }))
-};
+var responses = require('./fixtures/responses');
 
 var fixtures = {
+
   'tmp/valid-tokens.json': JSON.stringify({
     accessToken: 'some-valid-access-token',
     refreshToken: 'some-unneeded-refresh-token',
     expires: Date.now() + (2 * 60 * 60 * 1000) // Two hours from nom.
   }),
+
   'tmp/expired-tokens.json': JSON.stringify({
     accessToken: 'some-expired-access-token',
     refreshToken: 'some-needed-refresh-token',
     expires: Date.now()
   }),
+
   'tmp/unparsable-tokens.json': 'Unparsable JSON...'
 };
 
@@ -59,7 +36,7 @@ describe('auth', function() {
 
   beforeEach(function(done) {
     var promises = Object.keys(fixtures).map(function(key) {
-      return outputFile(key, fixtures[key]);
+      return fsp.outputFile(key, fixtures[key]);
     });
     Promise.all(promises).then(function() {
       done();
@@ -78,16 +55,15 @@ describe('auth', function() {
         'not expired.', function(done) {
 
       var context =  {
-        config: defaults({
-          ids: 'ga:12345',
+        config: {
           tokenFile: 'tmp/valid-tokens.json'
-        }, defaultConfig)
+        }
       };
 
       Promise.bind(context)
           .then(auth.getAccessToken)
-          .then(function() {
-            assert.equal(this.tokenData.accessToken, 'some-valid-access-token');
+          .then(function(accessToken) {
+            assert.equal(accessToken, 'some-valid-access-token');
             done();
           });
     });
@@ -95,19 +71,17 @@ describe('auth', function() {
     it('refreshes the access token when it has expired.', function(done) {
 
       var context =  {
-        config: defaults({
-          ids: 'ga:12345',
+        config: {
           tokenFile: 'tmp/expired-tokens.json'
-        }, defaultConfig)
+        }
       };
 
       var postStub = sinon.stub(request, 'post');
       postStub.withArgs(params.forRefreshRequest('some-needed-refresh-token'))
           .returns(responses.refreshSuccess);
 
-      auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.accessToken,
-            'some-refreshed-access-token');
+      auth.getAccessToken.call(context).then(function(accessToken) {
+        assert.equal(accessToken, 'some-refreshed-access-token');
 
         postStub.restore();
         done();
@@ -119,10 +93,9 @@ describe('auth', function() {
         'exists.', function(done) {
 
       var context =  {
-        config: defaults({
-          ids: 'ga:12345',
+        config: {
           tokenFile: 'tmp/i-dont-exist.json'
-        }, defaultConfig)
+        }
       };
 
       var alertStub = sinon.stub(log, 'alert', function() {});
@@ -136,7 +109,7 @@ describe('auth', function() {
           .onThirdCall().returns(responses.authorizationSuccess);
 
       auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.accessToken,
+        assert.equal(this.accessToken,
             'some-new-access-token');
 
         var alertMessage = printf.apply(null, alertStub.getCall(0).args);
@@ -154,10 +127,9 @@ describe('auth', function() {
         'reading the tokens file.', function(done) {
 
       var context =  {
-        config: defaults({
-          ids: 'ga:12345',
+        config: {
           tokenFile: 'tmp/unparsable-tokens.json'
-        }, defaultConfig)
+        }
       };
 
       var alertStub = sinon.stub(log, 'alert', function() {});
@@ -168,7 +140,7 @@ describe('auth', function() {
           .returns(responses.authorizationSuccess);
 
       auth.getAccessToken.call(context).then(function() {
-        assert.equal(this.tokenData.accessToken,
+        assert.equal(this.accessToken,
             'some-new-access-token');
 
         var alertMessage = printf.apply(null, alertStub.getCall(0).args);
@@ -182,13 +154,18 @@ describe('auth', function() {
 
     });
 
+    it('saves the tokens to disk anytime new token data is received',
+        function(done) {
+
+      done();
+    });
+
     it('logs a message if the user declines authorization.', function(done) {
 
       var context =  {
-        config: defaults({
-          ids: 'ga:12345',
+        config: {
           tokenFile: 'tmp/unparsable-tokens.json'
-        }, defaultConfig)
+        }
       };
 
       var alertStub = sinon.stub(log, 'alert', function() {});

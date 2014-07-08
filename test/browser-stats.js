@@ -45,7 +45,7 @@ describe('browser-stats', function() {
       assert(postStub.calledTwice);
       assert(getStub.calledOnce);
       assert(successStub.calledOnce);
-      assert(outputJsonStub.calledOnce);
+      assert(outputJsonStub.calledTwice);
 
       alertStub.restore();
       postStub.restore();
